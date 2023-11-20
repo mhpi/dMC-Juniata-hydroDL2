@@ -1,0 +1,9 @@
+defaults:
+  - config: 02_train_mlp_power_b
+  - hydra_settings: settings
+  - _self_
+# Global ------------------------------------------------------------------------
+cwd: /mnt/sdb1/tkb5476/dMC-Juniata-hydroDL2
+data_dir: /mnt/sdb1/Database/PKDN/dx-2000dis1_non_merge
+name: 02_train_mlp_power_b
+device: cpu
