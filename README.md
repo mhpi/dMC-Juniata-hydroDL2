@@ -3,6 +3,7 @@
 
 # dMC-Juniata-hydroDL2
 
+[![DOI](https://zenodo.org/badge/719824272.svg)](https://zenodo.org/doi/10.5281/zenodo.10183448)
 ![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)
 ![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)
 ![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)
