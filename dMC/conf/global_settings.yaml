@@ -1,9 +1,9 @@
 defaults:
-  - config: 02_train_mlp_power_b
+  - config: 02_generate_mlp_power_a
   - hydra_settings: settings
   - _self_
 # Global ------------------------------------------------------------------------
-cwd: /mnt/sdb1/tkb5476/dMC-Juniata-hydroDL2
-data_dir: /mnt/sdb1/Database/PKDN/dx-2000dis1_non_merge
-name: 02_train_mlp_power_b
+cwd: /data/tkb5476/projects/dMC-Juniata-hydroDL2
+data_dir: /data/tkb5476/data/hydroRouting/dx-2000dis1_non_merge
+name: 02_generate_mlp_power_a
 device: cpu
