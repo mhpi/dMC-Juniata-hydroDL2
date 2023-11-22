@@ -7,14 +7,14 @@ import pandas as pd
 import torch
 from omegaconf import DictConfig
 
-from dMC.data.datasets import Hydrofabric, Network, Dataset
+from dMC.data.datasets import Hydrofabric, Network
 from dMC.data.dates import Dates
 from dMC.data.normalize import Normalize
 
 log = logging.getLogger(__name__)
 
 
-class NHDSRB(Dataset):
+class NHDSRB:
     """
     A data for the Bindas et al. 2023 Muskingum Cunge Routing Paper
 
@@ -89,36 +89,36 @@ class NHDSRB(Dataset):
             df.to_csv(save_path, index=False)
             return df
 
-        try:
-            self.edges = pd.read_csv(self.cfg.save_paths.edges).to_numpy()
-            self._nodes = pd.read_csv(self.cfg.save_paths.nodes).to_numpy()
-            self.areas = np.load(self.cfg.save_paths.areas)
-        except FileNotFoundError:
-            full_graph_edge = pd.read_csv(self.cfg.csv.edges)
-            full_edges_numpy = full_graph_edge.to_numpy()
-            full_graph_nodes = pd.read_csv(self.cfg.csv.nodes).to_numpy()
-            basin_edges = []
-            basin_nodes = []
-            _generate_sub_basin(
-                self.end_node,
-                full_edges_numpy,
-                full_graph_nodes,
-            )
-            # Adding extra edge for network
-            _index = np.where(full_graph_nodes[:, 0] == self.end_node)[0]
-            node_row = full_graph_nodes[_index, :][0]
-            to_edge = node_row[3]  # MAGIC NUM: 3 is the toEdge index
-            _index = np.where(full_graph_edge.iloc[:, 0] == to_edge)[0]
-            edge_row = full_graph_edge.iloc[_index, :].to_numpy()[0]
-            basin_edges.append(edge_row)
+        # try:
+        #     self.edges = pd.read_csv(self.cfg.save_paths.edges).to_numpy()
+        #     self._nodes = pd.read_csv(self.cfg.save_paths.nodes).to_numpy()
+        #     self.areas = np.load(self.cfg.save_paths.areas)
+        # except FileNotFoundError:
+        full_graph_edge = pd.read_csv(self.cfg.csv.edges)
+        full_edges_numpy = full_graph_edge.to_numpy()
+        full_graph_nodes = pd.read_csv(self.cfg.csv.nodes).to_numpy()
+        basin_edges = []
+        basin_nodes = []
+        _generate_sub_basin(
+            self.end_node,
+            full_edges_numpy,
+            full_graph_nodes,
+        )
+        # Adding extra edge for network
+        _index = np.where(full_graph_nodes[:, 0] == self.end_node)[0]
+        node_row = full_graph_nodes[_index, :][0]
+        to_edge = node_row[3]  # MAGIC NUM: 3 is the toEdge index
+        _index = np.where(full_graph_edge.iloc[:, 0] == to_edge)[0]
+        edge_row = full_graph_edge.iloc[_index, :].to_numpy()[0]
+        basin_edges.append(edge_row)
 
-            df_edges = _process_df(basin_edges, self.cfg.save_paths.edges)
-            df_edges.columns = full_graph_edge.columns
-            self.edges = df_edges.to_numpy()
-            self.areas = df_edges["TotDASqKM"].to_numpy().astype("float")
-            np.save(self.cfg.save_paths.areas, self.areas)
-            df_nodes = _process_df(basin_nodes, self.cfg.save_paths.nodes)
-            self._nodes = df_nodes.to_numpy()
+        df_edges = _process_df(basin_edges, self.cfg.save_paths.edges)
+        df_edges.columns = full_graph_edge.columns
+        self.edges = df_edges.to_numpy()
+        self._areas = df_edges["TotDASqKM"].to_numpy().astype("float")
+        np.save(self.cfg.save_paths.areas, self._areas)
+        df_nodes = _process_df(basin_nodes, self.cfg.save_paths.nodes)
+        self._nodes = df_nodes.to_numpy()
 
     def _create_network(self) -> None:
         node_ids = self._nodes[:, 0]
@@ -142,7 +142,9 @@ class NHDSRB(Dataset):
                         upstream_idx = upstream_dictionary[key]
                         network_matrix[row, upstream_idx] = 1
                     except KeyError:
-                        log.debug(f"KeyError at key: {key}. Find a solution later but ignore")
+                        log.debug(
+                            f"KeyError at key: {key}. Find a solution later but ignore"
+                        )
                 network_df = pd.DataFrame(
                     network_matrix.cpu().numpy(),
                     index=node_ids,
@@ -252,7 +254,7 @@ class NHDSRB(Dataset):
         )
         self.network = Network(
             gage_indices=gage_inidices,
-            explicit_network_matrix=explicit_network_matrix.to(self.cfg.device),
+            explicit_network_matrix=explicit_network_matrix,
             index_graph=index_graph,
         )
 
@@ -316,16 +318,16 @@ class NHDSRB(Dataset):
             self.dates.unix_timestamp(start_date_str),
             self.dates.unix_timestamp(end_date_str),
         )
-        log.info(f"Tau: {self.cfg.time.tau}")
-        try:
-            q_prime = pd.read_csv(save_path).to_numpy()
-            self.forcings = torch.tensor(q_prime)
-        except FileNotFoundError:
-            _forcings = _preprocess_forcings()
-            q_prime = _create_q_prime(_forcings)
-            df = pd.DataFrame(q_prime)
-            df.to_csv(save_path, index=False)
-            self.forcings = q_prime
+        # log.info(f"Tau: {self.cfg.time.tau}")
+        # try:
+        #     q_prime = pd.read_csv(save_path).to_numpy()
+        #     self.forcings = torch.tensor(q_prime)
+        # except FileNotFoundError:
+        _forcings = _preprocess_forcings()
+        q_prime = _create_q_prime(_forcings)
+        df = pd.DataFrame(q_prime)
+        df.to_csv(save_path, index=False)
+        self.forcings = q_prime
 
     def _read_data(self) -> None:
         self._create_graph_data()
@@ -336,8 +338,8 @@ class NHDSRB(Dataset):
 
     def get_data(self) -> Hydrofabric:
         return Hydrofabric(
-            attributes=self.attributes.to(self.cfg.device),
-            forcings=self.forcings.to(self.cfg.device),
+            attributes=self.attributes,
+            forcings=self.forcings,
             network=self.network,
-            normalized_attributes=self.normalized_attributes.to(self.cfg.device),
+            normalized_attributes=self.normalized_attributes,
         )

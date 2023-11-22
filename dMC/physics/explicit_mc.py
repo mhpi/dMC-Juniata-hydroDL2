@@ -43,7 +43,7 @@ class ExplicitMC(nn.Module):
         return torch.clamp(s0_, min=self.cfg.slope.min, max=self.cfg.slope.max)
 
     @staticmethod
-    # @torch.jit.script
+    @torch.jit.script
     def _get_velocity(q_t, _n, _q_spatial, _s0, p_spatial) -> torch.Tensor:
         """
         Since this is an explicit solver, we need to index the values that we're calculating
@@ -60,7 +60,10 @@ class ExplicitMC(nn.Module):
         return c
 
     def muskingum_cunge(
-        self, i_t: torch.Tensor, i_t1: torch.Tensor, q_prime_segment: torch.Tensor,
+        self,
+        i_t: torch.Tensor,
+        i_t1: torch.Tensor,
+        q_prime_segment: torch.Tensor,
     ) -> torch.Tensor:
         q_t = self._discharge_t[self._downstream_indexes]
         length = self.length[self._downstream_indexes]
@@ -143,7 +146,8 @@ class ExplicitMC(nn.Module):
         A = hydrofabric.network.explicit_network_matrix
         river_index_graph = torch.tensor(hydrofabric.network.index_graph)
         output = torch.zeros(
-            [observations.shape[0], q_prime.shape[0]], dtype=torch.float64,
+            [observations.shape[0], q_prime.shape[0]],
+            dtype=torch.float64,
         )
         self._discharge_t = q_prime[0]
         self._discharge_t1 = torch.zeros(q_prime[0].shape, dtype=torch.float64)
