@@ -21,7 +21,7 @@ __more documentation will be released upon publication of this paper__
 conda env create -f environment.yml
 ```
 
-2. Download the River graph data from our Zenodo link (Link coming soon)
+2. Download the River graph data from our Zenodo link https://zenodo.org/records/10183429 for the Susquehanna River Basin
 
 3. Run an experiment. Your experiments are controlled by config files within the `dMC/conf/configs` dir.
 
