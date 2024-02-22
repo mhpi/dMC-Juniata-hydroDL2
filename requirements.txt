@@ -1,0 +1,13 @@
+hydra-core==1.3.2
+injector==0.21.0
+jupyterlab
+matplotlib==3.8.2
+numpy==1.26.2
+omegaconf==2.3.0
+pandas==2.1.3
+pillow==9.3.0
+scikit-learn==1.3.2
+tensorboard==2.16.2
+torch==2.1.1+cpu
+torchvision==0.16.1+cpu
+tqdm==4.66.1

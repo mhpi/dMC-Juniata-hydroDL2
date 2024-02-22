@@ -15,10 +15,20 @@ __more documentation will be released upon publication of this paper__
 
 ## Installation/Getting Started
 
-1. Create a conda env using the defined `environment.yml` file
+1. Create your environment
+
+Use Conda to create an environment
 
 ```shell
 conda env create -f environment.yml
+```
+
+Or use a combination of conda + pip
+
+```shell
+conda create -n dMC-Juniata-hydroDL2
+conda activate dMC-Juniata-hydroDL2
+pip install -r requirements.txt
 ```
 
 2. Download the River graph data from our Zenodo link https://zenodo.org/records/10183429 for the Susquehanna River Basin
@@ -26,8 +36,63 @@ conda env create -f environment.yml
 3. Run an experiment. Your experiments are controlled by config files within the `dMC/conf/configs` dir.
 
 To change the config file, go to `dMC/conf/global_settings.yaml` and make sure to change the experiment `name` as desired
+
+## How to use this package:
+dMC Routing is composed of several class objects:
+- `DataLoader`
+  - Contains all data information, and is an iterable to assist with training and validation.
+  - The dataloader provided is for data in the Susquehanna River Basin
+- `Model`
+  - The differentiable routing model
+- `Experiment`
+  - The experiment you are going to run. 
+  - Your experiment is your use case for this class. Say you want to train an MLP, there is an experiment for that. Or you want to generate 
+synthetic data... there is an experiment for that.
+
+This code is set up so your experiment file is similar to a script, but all of the function imports and class creations are done behind the scenes
+providing a cleaner, abstract, interface.
+
+When running the code from the cmd line: `python -m dMC`, these classes are instantiated from the `factory.py` file
+and are run in your experiment. 
+
+Inside of every config file there is a `Service_Locator`
+```yaml
+# service_locator -----------------------------------------------------------------------
+service_locator:
+  experiment: generate_synthetic.GenerateSynthetic
+  data: nhd_srb.NHDSRB
+  observations: usgs.USGS
+  physics: explicit_mc.ExplicitMC
+  neural_network: single_parameters.SingleParameters
+```
+This config entry will point to the `file_name.class_name` imported behind the scenes. 
+
 ## Experiments
 
+To run an experiment from the command line: You need to set up the `dMC/conf/global_settings.yaml` file. 
+This file includes the following default information:
+```yaml
+cwd: /path/to/your/codefolder/dMC-Juniata-hydroDL2
+data_dir: /path/to/your/data/dx-2000dis1_non_merge
+name: config file name
+device: cpu
+```
+This information will be global to all experiments, and is set outside of the individual config files
+- `cwd`
+  - The current working directory where you cloned this repo. For example, my `cwd` is `/home/tbindas/dMC-Juniata-hydroDL2`
+- `data_dir`
+  - The directory that you downloaded the Zenodo Data to, or where your graph data lives. Mine is `/data/dx-2000dis1_non_merge`
+- `name`
+  - The name of your experiment run. I always name these after the experiment I'm running
+- `device`
+  - Currently only CPU is supported
+
+On top of the `global_settings.yaml` file is:
+```yaml
+defaults:
+  - config: 03_train_usgs_period_1a
+```
+This is where you specify the experiment config that you would like to run. See below for an organization of all experiment files:
 ### 01: Single Parameter Experiments
 To run these, you should use the following configs:
 - `01_generate_single_synth_parameter_data.yaml`
@@ -60,7 +125,12 @@ You can run the following cfgs to train models against USGS data
 - `03_train_usgs_period_4a.yaml`
 - `03_train_usgs_period_4b.yaml`
 
-##### Jupyter notebooks for generating testing metrics are coming soon. 
+### Running experiments from a Juypter Notebook 
+- See the `notebooks/` dir for a detailed example of how to use this repo in a Notebook setting with the provided configurations!
+
+## Outputs:
+Since we use Hydra, our output logs, config file, and saved data will be in the `dMC/outputs/` dir. The outputs are sorted by
+the date the job was run (YYYY-mm-dd), and then the time the job was run (hh-mm-ss).
 
 # Citation:
 ```bibtex
