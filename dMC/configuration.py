@@ -27,7 +27,6 @@ class Configuration:
         :param cfg: Configuration object.
         :type cfg: DictConfig
         """
-        _set_device(cfg)
         self.cfg = cfg.config
         self.package_paths = package_paths
         self.service_locator = self._import_and_instantiate()
@@ -78,14 +77,3 @@ class Configuration:
             log.error(f"No class found in the service locator. Check cfg file or dictionary pathing")
             raise TypeError
 
-
-def _set_device(cfg):
-    """
-    Sets our device
-    :return:
-    """
-    OmegaConf.set_struct(cfg, False)
-    cfg.config.model.device = cfg.device
-    cfg.config.experiment.device = cfg.device
-    cfg.config.data.device = cfg.device
-    OmegaConf.set_struct(cfg, True)

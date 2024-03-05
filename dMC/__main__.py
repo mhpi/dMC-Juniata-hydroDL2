@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 import time
 import random
 import warnings
@@ -8,7 +9,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module="torchvision")
 import hydra
 from injector import inject, Injector
 import numpy as np
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 import torch.utils.data
 import torch.nn as nn
 
@@ -61,7 +62,7 @@ class ExperimentHandler:
 
 
 @hydra.main(
-    version_base=None,
+    version_base="1.3",
     config_path="conf/",
     config_name="global_settings",
 )
@@ -73,7 +74,7 @@ def main(cfg: DictConfig) -> None:
     :type cfg: DictConfig
     :return: None
     """
-    _set_seed(cfg)
+    _set_defaults(cfg)
     start = time.perf_counter()
     injector = Injector([configure(cfg), Factory])
     handler = injector.get(ExperimentHandler)
@@ -82,7 +83,7 @@ def main(cfg: DictConfig) -> None:
     log.info(f"Experiment: {cfg.name} took {(end - start):.6f} seconds")
 
 
-def _set_seed(cfg):
+def _set_defaults(cfg):
     torch.manual_seed(cfg.config.model.seed)
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
@@ -93,7 +94,13 @@ def _set_seed(cfg):
         torch.backends.cudnn.benchmark = False
     np.random.seed(1)
     random.seed(0)
-
+    OmegaConf.set_struct(cfg, False)
+    cfg.config.model.device = cfg.device
+    cfg.config.experiment.device = cfg.device
+    cfg.config.data.device = cfg.device
+    OmegaConf.set_struct(cfg, True)
+    return cfg
+    
 
 if __name__ == "__main__":
     main()

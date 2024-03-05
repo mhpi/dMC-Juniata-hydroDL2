@@ -1,9 +1,8 @@
 defaults:
-  - config: 03_train_usgs_period_1a
-  - hydra_settings: settings
+  - config: 01_generate_single_synth_parameter_data
   - _self_
 # Global ------------------------------------------------------------------------
-cwd: /path/to/your/codefolder/dMC-Juniata-hydroDL2
-data_dir: /path/to/your/data/dx-2000dis1_non_merge
-name: 03_train_usgs_period_1a
+cwd: /data/tkb5476/projects/dMC-Juniata-hydroDL2
+data_dir: /data/tkb5476/projects/dMC-Juniata-hydroDL2/flat_files/dMC-Juniata-hydroDL2/dx-2000dis1_non_merge
+name: 01_generate_single_synth_parameter_data
 device: cpu
