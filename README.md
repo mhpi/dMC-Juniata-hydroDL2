@@ -9,9 +9,7 @@
 ![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)
 ![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)
 
-This repo contains a released version of the differentiable Muskingum-Cunge Method. 
-
-__more documentation will be released upon publication of this paper__
+This repo contains a released version of the differentiable Muskingum-Cunge Method from https://doi.org/10.1029/2023WR035337
 
 ## Installation/Getting Started
 
